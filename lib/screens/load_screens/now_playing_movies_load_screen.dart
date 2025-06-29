@@ -1,39 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mvvm_statemanagements/screens/load_screens/popular_movies_load_screen.dart';
+import 'package:mvvm_statemanagements/screens/movie_screens/now_playing_movies_screen.dart';
+import 'package:mvvm_statemanagements/screens/movie_screens/top_rated_movies_screen.dart';
 import 'package:mvvm_statemanagements/service/init_getit.dart';
 import 'package:mvvm_statemanagements/service/navigation_service.dart';
-import 'package:mvvm_statemanagements/view_models/favorites/favorites_bloc.dart';
+import 'package:mvvm_statemanagements/view_models/movies/now_playing/now_playing_movies_bloc.dart';
+import 'package:mvvm_statemanagements/view_models/movies/top_rated/top_rated_movies_bloc.dart';
+import 'package:mvvm_statemanagements/widgets/my_error_widget.dart';
 
-import '../widgets/my_error_widget.dart';
-
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+class NowPlayingMoviesLoadScreen extends StatelessWidget {
+  const NowPlayingMoviesLoadScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final favoritesBloc = getIt<FavoritesBloc>();
+    final moviesBloc = getIt<NowPlayingMoviesBloc>();
     final navigationService = getIt<NavigationService>();
 
     return Scaffold(
       body: MultiBlocListener(
         listeners: [
-          BlocListener<FavoritesBloc, FavoritesState>(
-            bloc: favoritesBloc..add(LoadFavorites()),
+          BlocListener<NowPlayingMoviesBloc, NowPlayingMoviesState>(
+            bloc: moviesBloc..add(FetchNowPlayingMoviesEvent()),
             listener: (context, state) {
-              if (state is FavoritesLoaded) {
+              if (state is NowPlayingMoviesLoadedState) {
                 navigationService
-                    .navigateReplace(const PopularMoviesLoadScreen());
-              } else if (state is FavoritesError) {
+                    .navigateReplace(const NowPlayingMoviesScreen());
+              } else if (state is NowPlayingMoviesErrorState) {
                 navigationService.showSnackbar(state.message);
               }
             },
           ),
         ],
-        child: BlocBuilder<FavoritesBloc, FavoritesState>(
-          bloc: favoritesBloc..add(LoadFavorites()),
+        child: BlocBuilder<NowPlayingMoviesBloc, NowPlayingMoviesState>(
+          bloc: moviesBloc..add(FetchNowPlayingMoviesEvent()),
           builder: (context, state) {
-            if (state is FavoritesLoaded) {
+            if (state is NowPlayingMoviesLoadedState) {
               return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -45,11 +46,11 @@ class SplashScreen extends StatelessWidget {
                   ],
                 ),
               );
-            } else if (state is FavoritesError) {
+            } else if (state is NowPlayingMoviesErrorState) {
               return MyErrorWidget(
                 errorText: state.message,
                 retryFunction: () {
-                  favoritesBloc.add(LoadFavorites());
+                  moviesBloc.add(FetchNowPlayingMoviesEvent());
                 },
               );
             }

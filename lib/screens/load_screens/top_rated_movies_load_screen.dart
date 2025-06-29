@@ -1,39 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mvvm_statemanagements/screens/load_screens/popular_movies_load_screen.dart';
+import 'package:mvvm_statemanagements/screens/movie_screens/top_rated_movies_screen.dart';
 import 'package:mvvm_statemanagements/service/init_getit.dart';
 import 'package:mvvm_statemanagements/service/navigation_service.dart';
-import 'package:mvvm_statemanagements/view_models/favorites/favorites_bloc.dart';
+import 'package:mvvm_statemanagements/view_models/movies/top_rated/top_rated_movies_bloc.dart';
+import 'package:mvvm_statemanagements/widgets/my_error_widget.dart';
 
-import '../widgets/my_error_widget.dart';
-
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+class TopRatedMoviesLoadScreen extends StatelessWidget {
+  const TopRatedMoviesLoadScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final favoritesBloc = getIt<FavoritesBloc>();
+    final moviesBloc = getIt<TopRatedMoviesBloc>();
     final navigationService = getIt<NavigationService>();
 
     return Scaffold(
       body: MultiBlocListener(
         listeners: [
-          BlocListener<FavoritesBloc, FavoritesState>(
-            bloc: favoritesBloc..add(LoadFavorites()),
+          BlocListener<TopRatedMoviesBloc, TopRatedMoviesState>(
+            bloc: moviesBloc..add(FetchTopRatedMoviesEvent()),
             listener: (context, state) {
-              if (state is FavoritesLoaded) {
-                navigationService
-                    .navigateReplace(const PopularMoviesLoadScreen());
-              } else if (state is FavoritesError) {
+              if (state is TopRatedMoviesLoadedState) {
+                navigationService.navigateReplace(const TopRatedMoviesScreen());
+              } else if (state is TopRatedMoviesErrorState) {
                 navigationService.showSnackbar(state.message);
               }
             },
           ),
         ],
-        child: BlocBuilder<FavoritesBloc, FavoritesState>(
-          bloc: favoritesBloc..add(LoadFavorites()),
+        child: BlocBuilder<TopRatedMoviesBloc, TopRatedMoviesState>(
+          bloc: moviesBloc..add(FetchTopRatedMoviesEvent()),
           builder: (context, state) {
-            if (state is FavoritesLoaded) {
+            if (state is TopRatedMoviesLoadedState) {
               return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -45,11 +43,11 @@ class SplashScreen extends StatelessWidget {
                   ],
                 ),
               );
-            } else if (state is FavoritesError) {
+            } else if (state is TopRatedMoviesErrorState) {
               return MyErrorWidget(
                 errorText: state.message,
                 retryFunction: () {
-                  favoritesBloc.add(LoadFavorites());
+                  moviesBloc.add(FetchTopRatedMoviesEvent());
                 },
               );
             }

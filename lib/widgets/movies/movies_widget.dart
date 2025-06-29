@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mvvm_statemanagements/constants/my_app_constants.dart';
 import 'package:mvvm_statemanagements/constants/my_app_icons.dart';
 import 'package:mvvm_statemanagements/screens/movie_details.dart';
 import '../../models/movies_model.dart';
@@ -9,7 +10,10 @@ import 'favorite_btn.dart';
 import 'genres_list_widget.dart';
 
 class MoviesWidget extends StatelessWidget {
-  const MoviesWidget({super.key, required this.movieModel});
+  const MoviesWidget({
+    super.key,
+    required this.movieModel,
+  });
 
   final MovieModel movieModel;
   @override
@@ -22,8 +26,9 @@ class MoviesWidget extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12.0),
           onTap: () {
-            getIt<NavigationService>()
-                .navigate(MovieDetailsScreen(movieModel: movieModel));
+            getIt<NavigationService>().navigate(MovieDetailsScreen(
+              movieModel: movieModel,
+            ));
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -32,14 +37,11 @@ class MoviesWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Hero(
-                    tag: movieModel.id,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: CachedImageWidget(
-                        imgUrl:
-                            "https://image.tmdb.org/t/p/w500/${movieModel.backdropPath}",
-                      ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: CachedImageWidget(
+                      imgUrl:
+                          "https://image.tmdb.org/t/p/w500/${movieModel.backdropPath}",
                     ),
                   ),
                   const SizedBox(width: 10),
